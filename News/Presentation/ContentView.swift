@@ -63,17 +63,27 @@ struct ListView: View {
             {
                 HStack {
                     if let imageUrl = article.urlToImage, let url = URL(string: imageUrl) {
-                        AsyncImage(url: url) { phase in
-                            if let image = phase.image {
-                                image
+                        if NetworkMonitor.shared.isConnected {
+                            AsyncImage(url: url) { phase in
+                                if let image = phase.image {
+                                    image
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: listItemImgLength, height: listItemImgLength)
+                                        .clipped()
+                                } else if phase.error != nil {
+                                    Color.red.frame(width: listItemImgLength, height: listItemImgLength)
+                                } else {
+                                    ProgressView().frame(width: listItemImgLength, height: listItemImgLength)
+                                }
+                            }
+                        } else {
+                            if let localImage = loadLocalImage(publishedAt: article.publishedAt) {
+                                Image(uiImage: localImage)
                                     .resizable()
                                     .scaledToFill()
                                     .frame(width: listItemImgLength, height: listItemImgLength)
                                     .clipped()
-                            } else if phase.error != nil {
-                                Color.red.frame(width: listItemImgLength, height: listItemImgLength)
-                            } else {
-                                ProgressView().frame(width: listItemImgLength, height: listItemImgLength)
                             }
                         }
                     } else {
@@ -141,30 +151,43 @@ struct GridView: View {
                        }
                     ) {
                         VStack {
-                            
-                            if let imageUrl = article.urlToImage, let url = URL(string: imageUrl) {
-                                
-                                GeometryReader { geometry in
-                                    var gridItemLength = geometry.size.width
-                                    AsyncImage(url: url) { phase in
-                                        if let image = phase.image {
-                                            image
-                                                .resizable()
-                                                .scaledToFill()
-                                                .aspectRatio(contentMode: .fill)
-                                                .frame(width: gridItemLength, height: gridItemLength)
-                                                .clipped()
-                                        } else if phase.error != nil {
-                                            Color.red
-                                                .frame(width: gridItemLength, height: gridItemLength)
-                                        } else {
-                                            ProgressView().frame(width: gridItemLength, height: gridItemLength)
+                            if NetworkMonitor.shared.isConnected {
+                                if let imageUrl = article.urlToImage, let url = URL(string: imageUrl) {
+                                    
+                                    GeometryReader { geometry in
+                                        var gridItemLength = geometry.size.width
+                                        AsyncImage(url: url) { phase in
+                                            if let image = phase.image {
+                                                image
+                                                    .resizable()
+                                                    .scaledToFill()
+                                                    .aspectRatio(contentMode: .fill)
+                                                    .frame(width: gridItemLength, height: gridItemLength)
+                                                    .clipped()
+                                            } else if phase.error != nil {
+                                                Color.red
+                                                    .frame(width: gridItemLength, height: gridItemLength)
+                                            } else {
+                                                ProgressView().frame(width: gridItemLength, height: gridItemLength)
+                                            }
                                         }
                                     }
+                                    .frame(height: imgLength - 50)
+                                } else {
+                                    Color.gray.frame(width: imgLength, height: imgLength)
                                 }
-                                .frame(height: imgLength - 50)
                             } else {
-                                Color.gray.frame(width: imgLength, height: imgLength)
+                                if let localImage = loadLocalImage(publishedAt: article.publishedAt) {
+                                    GeometryReader { geometry in
+                                        var gridItemLength = geometry.size.width
+                                        Image(uiImage: localImage)
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: gridItemLength, height: gridItemLength)
+                                            .clipped()
+                                    }
+                                    .frame(height: imgLength - 50)
+                                }
                             }
                             Text(article.author ?? "Empty")
                                 .font(.caption)
