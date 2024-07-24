@@ -214,3 +214,16 @@ extension View {
         self.modifier(OnRotateModifier(action: action))
     }
 }
+
+func loadLocalImage(publishedAt: String) -> UIImage? {
+        let fileName = "\(publishedAt).jpg"
+        let fileManager = FileManager.default
+        guard let documentsURL = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            return nil
+        }
+        let fileURL = documentsURL.appendingPathComponent(fileName)
+        if fileManager.fileExists(atPath: fileURL.path) {
+            return UIImage(contentsOfFile: fileURL.path)
+        }
+        return nil
+    }

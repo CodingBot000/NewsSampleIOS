@@ -32,6 +32,8 @@ class NewsViewModel: ObservableObject {
                             self.articles = newsResponse.articles
                             self.syncWithCoreData()
                             NewsRepository.shared.saveArticles(newsResponse.articles)
+                            
+                            NewsRepository.shared.saveImageFile(newsResponse.articles)
                         case .failure(let error):
                             print("Failed to fetch news: \(error)")
                             self.articles = []

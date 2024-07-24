@@ -123,4 +123,23 @@ class NewsRepository {
                 print("Failed to toggle selection: \(error.localizedDescription)")
             }
         }
+    
+    
+    func saveImageFile(_ articles: [NewsArticle]) {
+        for article in articles {
+            guard let urlString = article.urlToImage, let url = URL(string: urlString) else {
+                       print("Invalid URL for article: \(article.title)")
+                       continue
+                   }
+                   let fileName = "\(article.publishedAt).jpg"
+                   FileDownloader.shared.downloadImage(from: url, fileName: fileName) { result in
+                       switch result {
+                       case .success(let fileURL):
+                           print("File saved to: \(fileURL.path)")
+                       case .failure(let error):
+                           print("Error downloading file: \(error.localizedDescription)")
+                       }
+                   }
+        }
+    }
 }
