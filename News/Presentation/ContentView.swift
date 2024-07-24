@@ -141,6 +141,7 @@ struct GridView: View {
                        }
                     ) {
                         VStack {
+                            
                             if let imageUrl = article.urlToImage, let url = URL(string: imageUrl) {
                                 
                                 GeometryReader { geometry in
